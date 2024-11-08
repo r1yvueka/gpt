@@ -19,36 +19,29 @@
 <script>
 // 累計移動距離とポイントを初期化
 let totalDistance = 0;
-
-// 初回のみポイントを100ptに設定
-if (!localStorage.getItem('points')) {
-    localStorage.setItem('points', '100');
-}
-
-// 現在のポイントを取得
-let points = parseFloat(localStorage.getItem('points'));
-
-// 前回の位置データを保存する変数
+let points = 100;  // 初期ポイントを100に設定
 let previousPosition = null;
+let previousTimestamp = null;
 
-var mapDiv = document.getElementById("mapDiv");     // 地図を置く場所
-var map;                                            // OpenStreetMapの地図オブジェクト
-var marker;                                         // OpenStreetMapのマーカーオブジェクト
+var mapDiv = document.getElementById("mapDiv");
+var map;
+var marker;
 
-// GPS センサの値が変化したら実行
-navigator.geolocation.watchPosition((position) => {
+navigator.geolocation.watchPosition( (position) => {
     var lat  = position.coords.latitude;
     var lng  = position.coords.longitude;
     var accu = position.coords.accuracy;
+    var currentTimestamp = position.timestamp;
+
     displayData(lat, lng, accu);
     showMyPos(lat, lng);
-    calculateDistance(lat, lng);
+    calculateDistance(lat, lng, currentTimestamp);
 }, (error) => {
+    console.error(error);
 }, {
     enableHighAccuracy: true
 });
 
-// データを表示する displayData 関数
 function displayData(lat, lng, accu) {
     var txt = document.getElementById("txt");
     txt.innerHTML = "緯度, 経度: " + lat + ", " + lng + "<br>"
@@ -57,7 +50,6 @@ function displayData(lat, lng, accu) {
                   + "ポイント: " + points.toFixed(2) + "pt";
 }
 
-// 自分の位置を表示する showMyPos 関数
 function showMyPos(lat, lng) {
     var myPos = [lat, lng];
     map.setView(myPos, 16);
@@ -68,10 +60,10 @@ function showMyPos(lat, lng) {
     }
 }
 
-// 移動距離を計算しポイントを加算する関数
-function calculateDistance(lat, lng) {
-    if (previousPosition) {
-        const R = 6371;
+// 移動距離を計算し速度を検知する関数
+function calculateDistance(lat, lng, currentTimestamp) {
+    if (previousPosition && previousTimestamp) {
+        const R = 6371; // 地球の半径 (km)
         const φ1 = previousPosition.lat * Math.PI / 180;
         const φ2 = lat * Math.PI / 180;
         const Δφ = (lat - previousPosition.lat) * Math.PI / 180;
@@ -82,19 +74,27 @@ function calculateDistance(lat, lng) {
                   Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        const distance = R * c;
+        const distance = R * c; // 距離 (km)
+        const timeElapsed = (currentTimestamp - previousTimestamp) / 1000; // 経過時間 (秒)
+        const speed = (distance * 1000) / timeElapsed; // 速度 (m/s)
 
-        totalDistance += distance;
-        points += distance / 0.012; // 10mで1.2ポイントを加算
-        localStorage.setItem('points', points.toFixed(2)); // ポイントを保存
+        // 速度が8.33m/s (時速30km) を超えたらエラーを表示
+        if (speed > 10) {
+            alert("時速36kmを超える速度です。計測を停止します。");
+            return; // それ以上の計算をせずに終了
+        }
+
+        totalDistance += distance; // 累計移動距離に加算
+        points += distance / 0.012; // ポイントに加算（10mで1.2ポイント）
     }
 
     previousPosition = { lat, lng };
+    previousTimestamp = currentTimestamp;
 }
 
 // 地図の初期化
 function initMap() {
-    navigator.geolocation.getCurrentPosition((position) => {
+    navigator.geolocation.getCurrentPosition( (position) => {
         var lat = position.coords.latitude;
         var lng = position.coords.longitude;
         var initPos = [lat, lng];
@@ -107,12 +107,12 @@ function initMap() {
 
         marker = L.marker(initPos).addTo(map);
     }, (error) => {
+        console.error(error);
     }, {
         enableHighAccuracy: true
     });
 }
 
-// 地図の初期化関数を実行
 initMap();
 </script>
 </body>

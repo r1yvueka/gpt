@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenStreetMapに位置を表示</title>
+<style>
+    #mapDiv {width: 100%; height: 400px;}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+<div id="txt">ここにデータを表示</div>
+<p><a href="./gacha.html">>>ガチャを引く</a></p>
+<div id="mapDiv"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+// 累計移動距離とポイントを初期化
+let totalDistance = 0;
+
+// 初回のみポイントを100ptに設定
+if (!localStorage.getItem('points')) {
+    localStorage.setItem('points', '100');
+}
+
+// 現在のポイントを取得
+let points = parseFloat(localStorage.getItem('points'));
+
+// 前回の位置データを保存する変数
+let previousPosition = null;
+
+var mapDiv = document.getElementById("mapDiv");     // 地図を置く場所
+var map;                                            // OpenStreetMapの地図オブジェクト
+var marker;                                         // OpenStreetMapのマーカーオブジェクト
+
+// GPS センサの値が変化したら実行
+navigator.geolocation.watchPosition((position) => {
+    var lat  = position.coords.latitude;
+    var lng  = position.coords.longitude;
+    var accu = position.coords.accuracy;
+    displayData(lat, lng, accu);
+    showMyPos(lat, lng);
+    calculateDistance(lat, lng);
+}, (error) => {
+}, {
+    enableHighAccuracy: true
+});
+
+// データを表示する displayData 関数
+function displayData(lat, lng, accu) {
+    var txt = document.getElementById("txt");
+    txt.innerHTML = "緯度, 経度: " + lat + ", " + lng + "<br>"
+                  + "精度: " + accu + "<br>"
+                  + "累計移動距離: " + totalDistance.toFixed(2) + " km<br>"
+                  + "ポイント: " + points.toFixed(2) + "pt";
+}
+
+// 自分の位置を表示する showMyPos 関数
+function showMyPos(lat, lng) {
+    var myPos = [lat, lng];
+    map.setView(myPos, 16);
+    if (marker) {
+        marker.setLatLng(myPos);
+    } else {
+        marker = L.marker(myPos).addTo(map);
+    }
+}
+
+// 移動距離を計算しポイントを加算する関数
+function calculateDistance(lat, lng) {
+    if (previousPosition) {
+        const R = 6371;
+        const φ1 = previousPosition.lat * Math.PI / 180;
+        const φ2 = lat * Math.PI / 180;
+        const Δφ = (lat - previousPosition.lat) * Math.PI / 180;
+        const Δλ = (lng - previousPosition.lng) * Math.PI / 180;
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        const distance = R * c;
+
+        totalDistance += distance;
+        points += distance / 0.012; // 10mで1.2ポイントを加算
+        localStorage.setItem('points', points.toFixed(2)); // ポイントを保存
+    }
+
+    previousPosition = { lat, lng };
+}
+
+// 地図の初期化
+function initMap() {
+    navigator.geolocation.getCurrentPosition((position) => {
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        var initPos = [lat, lng];
+        map = L.map(mapDiv).setView(initPos, 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        marker = L.marker(initPos).addTo(map);
+    }, (error) => {
+    }, {
+        enableHighAccuracy: true
+    });
+}
+
+// 地図の初期化関数を実行
+initMap();
+</script>
+</body>
+</html>

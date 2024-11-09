@@ -8,15 +8,17 @@
 
 <body>
     <div id="remainingPoints">残りポイント: <span id="points">0</span>pt</div>
-<button onclick="playGacha()">押せ!</button>
-<video id="videoPlayer" width="320" height="240" controls style="display:none;">
-    <source src="" type="video/mp4">
-    お使いのブラウザは動画タグをサポートしていません。
-</video>
+    <button onclick="playGacha()">押せ!</button>
+    <video id="videoPlayer" width="320" height="240" controls style="display:none;">
+        <source src="" type="video/mp4">
+        お使いのブラウザは動画タグをサポートしていません。
+    </video>
+    <div id="result"></div>
 
 <script>
-// ポイントをローカルストレージから取得
+// ローカルストレージからポイントを取得して表示
 let points = parseFloat(localStorage.getItem('points') || '0');
+document.getElementById("points").innerText = points.toFixed(2);
 
 // ガチャを引く関数
 function playGacha() {
@@ -25,30 +27,24 @@ function playGacha() {
         return;
     }
 
-    // 10ポイントを消費
+    // ポイントを10消費し、保存
     points -= 10;
-    localStorage.setItem('points', points.toFixed(2)); // 消費後のポイントを保存
+    localStorage.setItem('points', points.toFixed(2));
+    document.getElementById("points").innerText = points.toFixed(2);
 
-    // 確率に基づいて結果を決定
-    const rand = Math.random() * 100; // 0から100の間のランダムな数値
-    const resultDiv = document.getElementById("result");
+    // ガチャの結果判定
+    const rand = Math.random() * 100;
     const videoPlayer = document.getElementById("videoPlayer");
-
-    // 動画の表示設定
     videoPlayer.style.display = "block";
 
     if (rand < 1) {
-        // スーパーラッキー (1%の確率)
         videoPlayer.src = "ex.mp4";
     } else if (rand < 20) {
-        // はずれ (19%の確率)
         videoPlayer.src = "lose.mp4";
     } else {
-        // あたり (80%の確率)
         videoPlayer.src = "win.mp4";
     }
 
-    // 動画再生
     videoPlayer.load();
     videoPlayer.play();
 }

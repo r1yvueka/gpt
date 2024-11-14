@@ -23,6 +23,8 @@ if (localStorage.getItem('points') === null) {
 }
 let points = parseFloat(localStorage.getItem('points'));
 let totalDistance = 0;
+let map, marker;
+let previousLat, previousLng;
 
 function updateDisplay() {
     document.getElementById("txt").innerHTML = 
@@ -30,25 +32,63 @@ function updateDisplay() {
         "ポイント: " + points.toFixed(2) + "pt";
 }
 
-// 累計移動距離とポイントの更新処理
-function calculateDistance(lat, lng, currentTimestamp) {
-    // ... (移動距離計算コード) ...
-    points += distance / 0.012;
-    localStorage.setItem('points', points.toFixed(2)); // ポイントを保存
-    updateDisplay();
+// 距離計算関数 (緯度経度から距離を求める)
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // 地球の半径 (km)
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // 距離 (km)
 }
 
-// 地図と位置の設定
+// 現在地と地図の初期設定
 function initMap() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        previousLat = lat;
+        previousLng = lng;
+
         map = L.map("mapDiv").setView([lat, lng], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
+        // 初回位置にマーカーを追加
+        marker = L.marker([lat, lng]).addTo(map);
+
+        // 現在地の追跡
+        navigator.geolocation.watchPosition(updatePosition);
     });
+}
+
+// 位置更新処理
+function updatePosition(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    // マーカーの位置を更新
+    marker.setLatLng([lat, lng]);
+
+    // 累計移動距離とポイントを計算
+    const distance = calculateDistance(previousLat, previousLng, lat, lng);
+    totalDistance += distance;
+    points += distance / 0.012;
+    localStorage.setItem('points', points.toFixed(2)); // ポイントを保存
+
+    // 地図を現在地に移動
+    map.setView([lat, lng]);
+
+    // 表示を更新
+    updateDisplay();
+
+    // 前回の位置を現在の位置に更新
+    previousLat = lat;
+    previousLng = lng;
 }
 
 initMap();

@@ -23,7 +23,7 @@
 <div id="txt">ここにデータを表示</div>
 <p><a href="./gacha.html">>>ガチャを引く</a></p>
 <div id="mapDiv"></div>
-<div id="accuracyDiv">誤差: 0 m</div>
+<div id="accuracyDiv">緯度: 0, 経度: 0<br>誤差: 0 m</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
@@ -73,8 +73,9 @@ function initMap() {
         // 現在位置マーカーの設定
         marker = L.marker([lat, lng]).addTo(map);
 
-        // 誤差を表示
-        document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
+        // 緯度、経度、誤差を表示
+        document.getElementById("accuracyDiv").innerHTML = 
+            "緯度: " + lat.toFixed(6) + ", 経度: " + lng.toFixed(6) + "<br>誤差: " + accuracy.toFixed(2) + " m";
 
         // 特定の地点にカスタムマーカーを追加
         addCustomMarker();
@@ -86,14 +87,14 @@ function initMap() {
 
 // 特定地点のカスタムマーカー追加
 function addCustomMarker() {
-    const customLat = 36.530914097451614;
-    const customLng = 136.62793466778197;
+    const customLat = 36.53153957602107;
+    const customLng = 136.62746255169134;
 
     // カスタムマーカーを作成
     const customMarker = L.marker([customLat, customLng]).addTo(map);
 
     // マーカーにポップアップをバインド
-    customMarker.bindPopup("<b>特定地点の情報</b><br>緯度: 36.531567801106235<br>経度: 136.6274090984782");
+    customMarker.bindPopup("<b>特定地点の情報</b><br>緯度: 36.53153957602107<br>経度: 136.62746255169134");
 
     // マーカークリックでポップアップを表示
     customMarker.on('click', () => {
@@ -125,8 +126,9 @@ function updatePosition(position) {
     // 表示更新
     updateDisplay();
 
-    // 誤差表示を更新
-    document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
+    // 緯度、経度、誤差表示を更新
+    document.getElementById("accuracyDiv").innerHTML = 
+        "緯度: " + lat.toFixed(6) + ", 経度: " + lng.toFixed(6) + "<br>誤差: " + accuracy.toFixed(2) + " m";
 
     // 前回の位置を現在の位置に更新
     previousLat = lat;

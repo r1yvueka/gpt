@@ -93,8 +93,8 @@ function addCustomMarker() {
     // カスタムマーカーを作成
     const customMarker = L.marker([customLat, customLng]).addTo(map);
 
-    // マーカーにポップアップをバインド
-    customMarker.bindPopup("<b>特定地点の情報</b><br>緯度: 36.53153957602107<br>経度: 136.62746255169134");
+    // ポップアップ内容を「天と地をつなぐ魔塔」に変更
+    customMarker.bindPopup("<b>天と地をつなぐ魔塔</b>");
 
     // マーカークリックでポップアップを表示
     customMarker.on('click', () => {

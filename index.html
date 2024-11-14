@@ -15,6 +15,11 @@
         border-radius: 5px;
         font-size: 14px;
     }
+    /* アイコンに白い枠を追加するためのスタイル */
+    .custom-icon {
+        border: 2px solid white; /* 白い枠 */
+        border-radius: 50%;      /* 円形の枠 */
+    }
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
@@ -93,12 +98,12 @@ function addCustomMarker() {
     const customLat = 36.53153957602107;
     const customLng = 136.62746255169134;
 
-    // カスタムアイコンを作成 (小さい画像)
-    const customIcon = L.icon({
-        iconUrl: 'LC.jpg',  // カスタムアイコン画像 (LC.jpg)
-        iconSize: [24, 24],  // アイコンのサイズ (小さめ)
-        iconAnchor: [12, 12],  // アイコンのアンカー位置 (中央)
-        popupAnchor: [0, -12]  // ポップアップのアンカー位置
+    // カスタムアイコンを作成 (画像サイズを少し大きく、白い枠をつける)
+    const customIcon = L.divIcon({
+        html: `<img src="LC.jpg" class="custom-icon" width="40" height="40" />`,  // アイコン画像とサイズ
+        iconSize: [40, 40],  // アイコン全体のサイズ
+        iconAnchor: [20, 20],  // アイコンのアンカー位置
+        popupAnchor: [0, -20]  // ポップアップのアンカー位置
     });
 
     // 小さいカスタムアイコンを使ったマーカーを作成

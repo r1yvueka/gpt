@@ -54,12 +54,12 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
     return R * c; // 距離 (km)
 }
 
-// 現在地と地図の初期設定
+// 地図初期設定と現在地の取得
 function initMap() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        const accuracy = position.coords.accuracy; // 初期誤差
+        const accuracy = position.coords.accuracy;
 
         previousLat = lat;
         previousLng = lng;
@@ -70,14 +70,34 @@ function initMap() {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // 初回位置にマーカーを追加
+        // 現在位置マーカーの設定
         marker = L.marker([lat, lng]).addTo(map);
 
-        // 初期誤差を表示
+        // 誤差を表示
         document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
+
+        // 特定の地点にカスタムマーカーを追加
+        addCustomMarker();
 
         // 現在地の追跡
         navigator.geolocation.watchPosition(updatePosition);
+    });
+}
+
+// 特定地点のカスタムマーカー追加
+function addCustomMarker() {
+    const customLat = 36.530914097451614;
+    const customLng = 136.62793466778197;
+
+    // カスタムマーカーを作成
+    const customMarker = L.marker([customLat, customLng]).addTo(map);
+
+    // マーカーにポップアップをバインド
+    customMarker.bindPopup("<b>特定地点の情報</b><br>緯度: 36.530914097451614<br>経度: 136.62793466778197");
+
+    // マーカークリックでポップアップを表示
+    customMarker.on('click', () => {
+        customMarker.openPopup();
     });
 }
 
@@ -85,27 +105,27 @@ function initMap() {
 function updatePosition(position) {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
-    const accuracy = position.coords.accuracy; // 最新の誤差
+    const accuracy = position.coords.accuracy;
 
-    // マーカーを更新
+    // 現在位置マーカーの更新
     if (marker) {
-        map.removeLayer(marker); // 既存のマーカーを削除
+        map.removeLayer(marker);
     }
-    marker = L.marker([lat, lng]).addTo(map); // 新しいマーカーを現在地に追加
+    marker = L.marker([lat, lng]).addTo(map);
 
     // 累計移動距離とポイントを計算
     const distance = calculateDistance(previousLat, previousLng, lat, lng);
     totalDistance += distance;
     points += distance / 0.012;
-    localStorage.setItem('points', points.toFixed(2)); // ポイントを保存
+    localStorage.setItem('points', points.toFixed(2));
 
     // 地図を現在地に移動
     map.setView([lat, lng]);
 
-    // 表示を更新
+    // 表示更新
     updateDisplay();
 
-    // 誤差を更新
+    // 誤差表示を更新
     document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
 
     // 前回の位置を現在の位置に更新

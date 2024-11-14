@@ -6,6 +6,15 @@
 <title>OpenStreetMapに位置を表示</title>
 <style>
     #mapDiv {width: 90%; height: 100vh;}
+    #accuracyDiv {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
@@ -14,6 +23,7 @@
 <div id="txt">ここにデータを表示</div>
 <p><a href="./gacha.html">>>ガチャを引く</a></p>
 <div id="mapDiv"></div>
+<div id="accuracyDiv">誤差: 0 m</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
@@ -49,6 +59,8 @@ function initMap() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy; // 初期誤差
+
         previousLat = lat;
         previousLng = lng;
 
@@ -61,6 +73,9 @@ function initMap() {
         // 初回位置にマーカーを追加
         marker = L.marker([lat, lng]).addTo(map);
 
+        // 初期誤差を表示
+        document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
+
         // 現在地の追跡
         navigator.geolocation.watchPosition(updatePosition);
     });
@@ -70,6 +85,7 @@ function initMap() {
 function updatePosition(position) {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
+    const accuracy = position.coords.accuracy; // 最新の誤差
 
     // マーカーの位置を更新
     marker.setLatLng([lat, lng]);
@@ -85,6 +101,9 @@ function updatePosition(position) {
 
     // 表示を更新
     updateDisplay();
+
+    // 誤差を更新
+    document.getElementById("accuracyDiv").innerHTML = "誤差: " + accuracy.toFixed(2) + " m";
 
     // 前回の位置を現在の位置に更新
     previousLat = lat;

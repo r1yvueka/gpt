@@ -23,7 +23,7 @@
 <div id="txt">ここにデータを表示</div>
 <p><a href="./gacha.html">>>ガチャを引く</a></p>
 <div id="mapDiv"></div>
-<div id="accuracyDiv">緯度: 0, 経度: 0<br>誤差: 0 m</div>
+<div id="accuracyDiv">緯度:<br>経度:<br>誤差:</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
@@ -75,7 +75,9 @@ function initMap() {
 
         // 緯度、経度、誤差を表示
         document.getElementById("accuracyDiv").innerHTML = 
-            "緯度: " + lat.toFixed(6) + ", 経度: " + lng.toFixed(6) + "<br>誤差: " + accuracy.toFixed(2) + " m";
+            "緯度: " + lat.toFixed(6) + "<br>" +
+            "経度: " + lng.toFixed(6) + "<br>" +
+            "誤差: " + accuracy.toFixed(2) + " m";
 
         // 特定の地点にカスタムマーカーを追加
         addCustomMarker();
@@ -128,7 +130,9 @@ function updatePosition(position) {
 
     // 緯度、経度、誤差表示を更新
     document.getElementById("accuracyDiv").innerHTML = 
-        "緯度: " + lat.toFixed(6) + ", 経度: " + lng.toFixed(6) + "<br>誤差: " + accuracy.toFixed(2) + " m";
+        "緯度: " + lat.toFixed(6) + "<br>" +
+        "経度: " + lng.toFixed(6) + "<br>" +
+        "誤差: " + accuracy.toFixed(2) + " m";
 
     // 前回の位置を現在の位置に更新
     previousLat = lat;

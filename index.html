@@ -87,8 +87,11 @@ function updatePosition(position) {
     const lng = position.coords.longitude;
     const accuracy = position.coords.accuracy; // 最新の誤差
 
-    // マーカーの位置を更新
-    marker.setLatLng([lat, lng]);
+    // マーカーを更新
+    if (marker) {
+        map.removeLayer(marker); // 既存のマーカーを削除
+    }
+    marker = L.marker([lat, lng]).addTo(map); // 新しいマーカーを現在地に追加
 
     // 累計移動距離とポイントを計算
     const distance = calculateDistance(previousLat, previousLng, lat, lng);

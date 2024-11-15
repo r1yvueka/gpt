@@ -92,7 +92,6 @@ function initMap() {
     });
 }
 
-// 特定地点のカスタムマーカー追加
 function addCustomMarker() {
     const customLat = 36.53153957602107;
     const customLng = 136.62746255169134;
@@ -111,11 +110,15 @@ function addCustomMarker() {
     // ポップアップ内容を「天と地をつなぐ魔塔」に設定
     customMarker.bindPopup("<b>天と地をつなぐ魔塔</b>");
 
-    // マーカークリックでポップアップを表示
+    // マーカークリックでポップアップを表示し、ポイント付与情報を反映
     customMarker.on('click', () => {
+        if (hasAwardedPoints) {
+            customMarker.setPopupContent("<b>天と地をつなぐ魔塔</b><br>ポイントを付与しました！");
+        }
         customMarker.openPopup();
     });
 }
+
 
 // 位置更新処理
 function updatePosition(position) {

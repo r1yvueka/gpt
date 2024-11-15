@@ -4,15 +4,58 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ガチャを引く</title>
+<style>
+    /* モーダルスタイル */
+    .modal {
+        display: none; /* 初期は非表示 */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); /* 背景を半透明に */
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #aaa;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
 </head>
 
 <body>
     <div id="remainingPoints">残りポイント: <span id="points">0</span>pt</div>
     <button onclick="playGacha()">押せ!</button>
-    <video id="videoPlayer" width="320" height="240" controls style="display:none;">
-        <source src="" type="video/mp4">
-        お使いのブラウザは動画タグをサポートしていません。
-    </video>
+
+    <!-- モーダル -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <video id="videoPlayer" width="100%" controls>
+                <source src="" type="video/mp4">
+                お使いのブラウザは動画タグをサポートしていません。
+            </video>
+        </div>
+    </div>
+
     <div id="result"></div>
 
 <script>
@@ -35,7 +78,10 @@ function playGacha() {
     // ガチャの結果判定
     const rand = Math.random() * 100;
     const videoPlayer = document.getElementById("videoPlayer");
-    videoPlayer.style.display = "block";
+    const modal = document.getElementById("modal");
+
+    // モーダルを表示
+    modal.style.display = "flex";
 
     if (rand < 1) {
         videoPlayer.src = "ex.mp4";
@@ -47,6 +93,17 @@ function playGacha() {
 
     videoPlayer.load();
     videoPlayer.play();
+}
+
+// モーダルを閉じる関数
+function closeModal() {
+    const modal = document.getElementById("modal");
+    const videoPlayer = document.getElementById("videoPlayer");
+
+    // モーダルを非表示にし、動画を停止
+    modal.style.display = "none";
+    videoPlayer.pause();
+    videoPlayer.currentTime = 0;
 }
 </script>
 </body>

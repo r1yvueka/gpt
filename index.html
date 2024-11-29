@@ -15,10 +15,7 @@
         border-radius: 5px;
         font-size: 14px;
     }
-    /* アイコンに四角い白い枠を追加するためのスタイル */
-    .custom-icon {
-        border: 2px solid white; /* 四角い白い枠 */
-    }
+
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
@@ -92,32 +89,6 @@ function initMap() {
     });
 }
 
-function addCustomMarker() {
-    const customLat = 36.53153957602107;
-    const customLng = 136.62746255169134;
-
-    // カスタムアイコンを作成 (画像サイズを少し大きく、四角い白い枠をつける)
-    const customIcon = L.divIcon({
-        html: `<img src="LC.jpg" class="custom-icon" width="40" height="40" />`,  // アイコン画像とサイズ
-        iconSize: [40, 40],  // アイコン全体のサイズ
-        iconAnchor: [20, 20],  // アイコンのアンカー位置
-        popupAnchor: [0, -20]  // ポップアップのアンカー位置
-    });
-
-    // 小さいカスタムアイコンを使ったマーカーを作成
-    const customMarker = L.marker([customLat, customLng], { icon: customIcon }).addTo(map);
-
-    // ポップアップ内容を「天と地をつなぐ魔塔」に設定
-    customMarker.bindPopup("<b>天と地をつなぐ魔塔</b>");
-
-    // マーカークリックでポップアップを表示し、ポイント付与情報を反映
-    customMarker.on('click', () => {
-        if (hasAwardedPoints) {
-            customMarker.setPopupContent("<b>天と地をつなぐ魔塔</b><br>ポイントを付与しました！");
-        }
-        customMarker.openPopup();
-    });
-}
 
 
 // 位置更新処理
@@ -150,18 +121,6 @@ function updatePosition(position) {
         "経度: " + lng.toFixed(6) + "<br>" +
         "誤差: " + accuracy.toFixed(2) + " m";
 
-    // 特定地点に近づいたかどうかを判定
-    const targetLat = 36.53153957602107;
-    const targetLng = 136.62746255169134;
-    const proximity = calculateDistance(lat, lng, targetLat, targetLng);
-
-    if (proximity <= 10 && !hasAwardedPoints) {
-        // 10メートル以内でポイントを一度だけ付与
-        points += 10;
-        localStorage.setItem('points', points.toFixed(2));
-        hasAwardedPoints = true;
-        updateDisplay();
-        alert("特定地点に到達しました！10ポイントが付与されました。");
     }
 
     // 前回の位置を現在の位置に更新
